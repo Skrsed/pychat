@@ -1,0 +1,40 @@
+services:
+  service:
+    build: ./service
+    ports:
+      - "82:8080"
+    # volumes:
+    #   - .:/code
+  postgres:
+    image: "postgres:15"
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "user"
+      # TODO: скрыть данные
+      POSTGRES_PASSWORD: "password"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./mnt/pg:/var/lib/postgres
+    networks:
+      - pgnet
+    restart: unless-stopped
+  admin:
+    image: dpage/pgadmin4
+    environment:
+      - "PGADMIN_DEFAULT_EMAIL=user@domain.com"
+      - "PGADMIN_DEFAULT_PASSWORD=secret"
+    ports:
+      - "5050:80"
+    volumes:
+      - ./mnt/pgadmin:/var/lib/pgadmin
+    networks:
+      - pgnet
+    restart: unless-stopped
+
+# Добавим их в общую сеть (можно подключиться и так: docker ps->docker inspect)
+networks:
+  pgnet:
+    driver: bridge
+
+#volumes:
